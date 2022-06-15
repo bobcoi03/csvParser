@@ -2,6 +2,24 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <regex>
+#include <vector>
+#include <iterator>
+#include <ctime>
+
+std::vector<std::string> split(const std::string &s, char separator){
+    std::vector<std::string> ret;
+    std::string accum;
+    for (auto c : s){
+        if (c == separator){
+            ret.emplace_back(std::move(accum));
+            continue;
+        }
+        accum += c;
+    }
+    ret.emplace_back(std::move(accum));
+    return ret;
+}
 
 class csvParser {
 	public:
@@ -9,6 +27,7 @@ class csvParser {
 		std::string fileName;
 		float fileSize;
 		std::size_t rows = 0;
+		std::vector<std::vector<std::string>> fileData {};
 	
 		csvParser(std::string fileNameArg) {
 			fileName = fileNameArg;
@@ -18,13 +37,12 @@ class csvParser {
 		// output members in the line
 		}
 		void readFile() {
-	
 			std::ifstream fileRead(fileName);
-
-			std::string text;		
- 	
+			std::string text;		 	
 			while (getline(fileRead, text)) {
-				std::cout << text << std::endl;
+				// REGEX for splitting string by comma
+				std::vector<std::string> result = split(text, ',');
+				fileData.push_back(result);
 			}
 			fileRead.close();
 		}
@@ -40,18 +58,34 @@ class csvParser {
 };
 
 int main() {
-	
-	char *twoDArray[2][3] = { {"a","b","c"}, {"d","f","g"}};
 
-	//std::cout << twoDArray[0][1] << std::endl;
+	time_t timeStart = time(0);
 
-	csvParser data {"test"};
+	csvParser data {"dataTest/charts.csv"};
 
 	data.readFile();
 
 	data.setRows();
 
 	std::cout << data.rows << std::endl;
+
+	// print out two 2d array of csv file
+
+	int dataRows = data.fileData.size();
+	int dataColumns = data.fileData[0].size();
+
+	for (int i = 0; i < data.fileData.size(); i++) {
+		for (int j = 0; j < data.fileData[i].size(); j++) {
+			std::cout << data.fileData[i][j] << "| ";
+		}
+		std::cout << std::endl;	
+	}
+
+	time_t timeEnd = time(0);
+
+	double executionTime = difftime(timeEnd, timeStart);
+
+	std::cout << "Indexed " << dataRows * dataColumns << " items in " << executionTime << " seconds | " << "Rows: " << dataRows << " Columns: " << dataColumns << std::endl;
 
 	return 0;
 }
