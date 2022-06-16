@@ -3,6 +3,8 @@
 #ifndef csvParser_h
 #define csvParser_h 
 
+std::vector<std::string> split(const std::string &s, char separator)
+
 class csvParser {
 	public:
 		// read file based on name
